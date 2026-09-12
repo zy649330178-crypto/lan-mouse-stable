@@ -8,7 +8,7 @@
     <property name="default-width">180</property>
     <property name="height-request">180</property>
     <property name="default-height">180</property>
-    <property name="title" translatable="yes">Unauthorized Device</property>
+    <property name="title" translatable="yes">未知设备请求连接</property>
     <property name="content">
       <object class="GtkBox">
         <property name="orientation">vertical</property>
@@ -30,14 +30,14 @@
             <property name="margin-bottom">30</property>
             <child>
               <object class="GtkLabel">
-                <property name="label">An unauthorized Device is trying to connect. Do you want to authorize this Device?</property>
+                <property name="label">有一台未授权设备正在请求连接。是否允许它接入？</property>
                 <property name="width-request">100</property>
                 <property name="wrap">word-wrap</property>
               </object>
             </child>
             <child>
               <object class="AdwPreferencesGroup">
-                <property name="title">sha256 fingerprint</property>
+                <property name="title">SHA-256 证书指纹</property>
                 <child>
                   <object class="AdwActionRow">
                     <property name="child">
@@ -76,7 +76,7 @@
             <child>
               <object class="GtkButton" id="cancel_button">
                 <signal name="clicked" handler="handle_cancel" swapped="true"/>
-                <property name="label" translatable="yes">Cancel</property>
+                <property name="label" translatable="yes">取消</property>
                 <property name="can-shrink">True</property>
                 <property name="height-request">50</property>
                 <property name="hexpand">True</property>
@@ -85,7 +85,7 @@
             <child>
               <object class="GtkButton" id="confirm_button">
                 <signal name="clicked" handler="handle_confirm" swapped="true"/>
-                <property name="label" translatable="yes">Authorize</property>
+                <property name="label" translatable="yes">允许接入</property>
                 <property name="can-shrink">True</property>
                 <property name="height-request">50</property>
                 <property name="hexpand">True</property>

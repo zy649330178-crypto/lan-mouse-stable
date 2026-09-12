@@ -8,7 +8,7 @@
     <property name="default-width">880</property>
     <property name="height-request">380</property>
     <property name="default-height">380</property>
-    <property name="title" translatable="yes">Add Certificate Fingerprint</property>
+    <property name="title" translatable="yes">添加设备证书指纹</property>
     <property name="content">
       <object class="AdwToolbarView">
         <child type="top">
@@ -24,17 +24,17 @@
                 <property name="spacing">18</property>
                 <child>
                   <object class="GtkLabel">
-                    <property name="label">The certificate fingerprint serves as a unique identifier for your device.</property>
+                    <property name="label">证书指纹用于唯一识别另一台设备。</property>
                   </object>
                 </child>
                 <child>
                   <object class="GtkLabel">
-                    <property name="label">You can find it under the `General` section of the device you want to connect</property>
+                    <property name="label">请在另一台设备的“本机信息”中复制证书指纹。</property>
                   </object>
                 </child>
                 <child>
                   <object class="AdwPreferencesGroup">
-                    <property name="title">description</property>
+                    <property name="title">设备备注</property>
                     <child>
                       <object class="AdwActionRow">
                         <property name="child">
@@ -55,7 +55,7 @@
                 </child>
                 <child>
                   <object class="AdwPreferencesGroup">
-                    <property name="title">sha256 fingerprint</property>
+                    <property name="title">SHA-256 证书指纹</property>
                     <child>
                       <object class="AdwActionRow">
                         <property name="child">
@@ -81,7 +81,7 @@
                     <child>
                       <object class="GtkButton" id="confirm_button">
                         <signal name="clicked" handler="handle_confirm" swapped="true"/>
-                        <property name="label" translatable="yes">Confirm</property>
+                        <property name="label" translatable="yes">确认添加</property>
                         <property name="can-shrink">True</property>
                         <style>
                             <class name="pill"/>

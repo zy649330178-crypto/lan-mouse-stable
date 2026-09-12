@@ -220,8 +220,8 @@ fn setup_menu(app: &adw::Application) {
     let menu = gio::Menu::new();
 
     let file_menu = gio::Menu::new();
-    file_menu.append(Some("Quit"), Some("app.quit"));
-    menu.append_submenu(Some("_File"), &file_menu);
+    file_menu.append(Some("退出"), Some("app.quit"));
+    menu.append_submenu(Some("应用"), &file_menu);
 
     app.set_menubar(Some(&menu))
 }
@@ -318,17 +318,17 @@ fn build_ui(app: &Application) {
                         fingerprint: _,
                         addr,
                     } => {
-                        window.show_toast(format!("device connected: {addr}").as_str());
+                        window.show_toast(format!("设备已连接：{addr}").as_str());
                     }
                     FrontendEvent::DeviceEntered {
                         fingerprint: _,
                         addr,
                         pos,
                     } => {
-                        window.show_toast(format!("device entered: {addr} ({pos})").as_str());
+                        window.show_toast(format!("鼠标已进入设备：{addr}（{pos}）").as_str());
                     }
                     FrontendEvent::IncomingDisconnected(addr) => {
-                        window.show_toast(format!("{addr} disconnected").as_str());
+                        window.show_toast(format!("设备已断开：{addr}").as_str());
                     }
                 }
             }

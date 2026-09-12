@@ -56,7 +56,7 @@ impl ClientRow {
         // bind hostname to title
         let title_binding = client_object
             .bind_property("hostname", self, "title")
-            .transform_to(|_, v: Option<String>| v.or(Some("<span font_style=\"italic\" font_weight=\"light\" foreground=\"darkgrey\">no hostname!</span>".to_string())))
+            .transform_to(|_, v: Option<String>| v.or(Some("<span font_style=\"italic\" font_weight=\"light\" foreground=\"darkgrey\">未填写主机名</span>".to_string())))
             .sync_create()
             .build();
 
@@ -106,7 +106,7 @@ impl ClientRow {
             .bind_property("ips", &self.imp().dns_button.get(), "tooltip-text")
             .transform_to(|_, ips: Vec<String>| {
                 if ips.is_empty() {
-                    Some("no ip addresses associated with this client".into())
+                    Some("此设备尚未解析到 IP 地址".into())
                 } else {
                     Some(ips.join("\n"))
                 }
@@ -174,12 +174,12 @@ impl ClientRow {
             .and_then(|co| co.property::<Option<String>>("peer-commit"));
         let local = crate::local_commit_str();
         let markup = match peer.as_deref() {
-            None => format!("Peer version: unknown · Ours: {local}"),
+            None => format!("对端版本：未知 · 本机：{local}"),
             Some(p) if p == local.as_str() => {
-                format!("Peer version: {p} · matched")
+                format!("对端版本：{p} · 版本一致")
             }
             Some(p) => {
-                format!("Peer version: {p} · Ours: {local}")
+                format!("对端版本：{p} · 本机：{local}")
             }
         };
         self.remove_css_class("peer-mismatch");

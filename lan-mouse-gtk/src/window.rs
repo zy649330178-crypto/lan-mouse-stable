@@ -514,14 +514,14 @@ impl Window {
             // AX granted but capture/emulation still off → the daemon
             // subprocess bailed at startup and needs a fresh process to
             // re-initialize with the new grant in place.
-            row.set_title("relaunch required");
-            row.set_subtitle("Accessibility granted — restart to activate capture and emulation");
-            set_button_content_label(button, "Relaunch");
+            row.set_title("需要重新启动");
+            row.set_subtitle("已授予辅助功能权限；重新启动后即可启用鼠标与键盘控制");
+            set_button_content_label(button, "重新启动");
         } else {
             // AX missing → send the user to System Settings.
-            row.set_title("input capture is disabled");
-            row.set_subtitle("grant Accessibility permission to enable");
-            set_button_content_label(button, "Grant");
+            row.set_title("鼠标与键盘捕获已关闭");
+            row.set_subtitle("请授予“辅助功能”权限以启用此功能");
+            set_button_content_label(button, "授权");
         }
     }
 
