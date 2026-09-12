@@ -52,6 +52,14 @@ Most current desktop environments and operating systems are fully supported, thi
 >
 > - **Windows**: The mouse cursor will be invisible when sending input to a Windows system if
 > there is no real mouse connected to the machine.
+>
+> - **Windows**: When the capture queue is saturated, a barrier crossing stays on the
+> local computer instead of waiting in the Windows input hook. This protects local
+> pointer responsiveness; retry the crossing after the remote connection recovers.
+> After a remote release, the same barrier is held for 150 ms to prevent an
+> immediate bounce back to the other computer.
+> The application log records the remote acknowledgement time for each crossing,
+> which can be used to distinguish a network delay from local input pressure.
 
 For more detailed information about os support see [Detailed OS Support](#detailed-os-support)
 

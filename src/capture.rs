@@ -79,6 +79,7 @@ impl Capture {
             captures: Default::default(),
             conn,
             event_tx,
+            waiting_for_ack_since: None,
             request_rx,
             release_bind: Rc::new(RefCell::new(release_bind)),
             state: Default::default(),
@@ -163,6 +164,9 @@ struct CaptureTask {
     captures: Vec<(CaptureHandle, Position, CaptureType)>,
     conn: LanMouseConnection,
     event_tx: Sender<ICaptureEvent>,
+    /// Timestamp for the current edge crossing while the remote peer is
+    /// acknowledging input capture. Kept locally for connection diagnostics.
+    waiting_for_ack_since: Option<Instant>,
     release_bind: Rc<RefCell<Vec<scancode::Linux>>>,
     request_rx: Receiver<CaptureRequest>,
     state: State,
@@ -282,7 +286,14 @@ impl CaptureTask {
                     match event {
                         // connection acknowlegded => set state to Sending
                         ProtoEvent::Ack(_) => {
-                            log::info!("client {handle} acknowledged the connection!");
+                            if let Some(started_at) = self.waiting_for_ack_since.take() {
+                                log::info!(
+                                    "client {handle} acknowledged the connection after {:?}",
+                                    started_at.elapsed()
+                                );
+                            } else {
+                                log::info!("client {handle} acknowledged the connection!");
+                            }
                             self.state = State::Sending;
                         }
                         // client disconnected
@@ -349,6 +360,7 @@ impl CaptureTask {
         if event == CaptureEvent::Begin && Some(handle) != self.active_client {
             self.state = State::WaitingForAck;
             self.active_client.replace(handle);
+            self.waiting_for_ack_since = Some(Instant::now());
             self.event_tx
                 .send(ICaptureEvent::ClientEntered(handle))
                 .expect("channel closed");
@@ -368,12 +380,19 @@ impl CaptureTask {
         if let Err(e) = self.conn.send(event, handle).await {
             const DUR: Duration = Duration::from_millis(500);
             debounce!(PREV_LOG, DUR, log::warn!("releasing capture: {e}"));
-            capture.release().await?;
+            self.release_capture(capture).await?;
         }
         Ok(())
     }
 
     async fn release_capture(&mut self, capture: &mut InputCapture) -> Result<(), CaptureError> {
+        if let Some(started_at) = self.waiting_for_ack_since.take() {
+            log::debug!(
+                "capture released before remote acknowledgement after {:?}",
+                started_at.elapsed()
+            );
+        }
+
         // If we have an active client, notify them we're leaving
         if let Some(handle) = self.active_client.take() {
             // Synthesize key-up events for every key still held in the

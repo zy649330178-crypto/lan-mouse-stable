@@ -6,6 +6,7 @@ use std::default::Default;
 use std::sync::atomic::{AtomicBool, AtomicI32, Ordering};
 use std::sync::{Arc, Condvar, Mutex};
 use std::thread;
+use std::time::Duration;
 use tokio::sync::mpsc::Sender;
 use tokio::sync::mpsc::error::TrySendError;
 use windows::Win32::Foundation::{FALSE, HWND, LPARAM, LRESULT, RECT, WPARAM};
@@ -32,6 +33,9 @@ use input_event::{
 };
 
 use super::{CaptureEvent, Position, display_util};
+use crate::reentry_guard::ReentryGuard;
+
+const REMOTE_RELEASE_REENTRY_GUARD: Duration = Duration::from_millis(150);
 
 pub(crate) struct EventThread {
     request_buffer: Arc<Mutex<Vec<ClientUpdate>>>,
@@ -98,10 +102,6 @@ enum ClientUpdate {
     Destroy(Position),
 }
 
-fn blocking_send_event(pos: Position, event: CaptureEvent) {
-    EVENT_TX.with_borrow_mut(|tx| tx.as_mut().unwrap().blocking_send((pos, event)).unwrap())
-}
-
 fn try_send_event(
     pos: Position,
     event: CaptureEvent,
@@ -120,6 +120,8 @@ thread_local! {
     static ENTRY_POINT: Cell<(i32, i32)> = const { Cell::new((0, 0)) };
     /// previous mouse position
     static PREV_POS: Cell<Option<(i32, i32)>> = const { Cell::new(None) };
+    /// prevents an immediate edge re-entry after capture has been released
+    static REENTRY_GUARD: RefCell<ReentryGuard> = RefCell::new(ReentryGuard::default());
     /// displays and generation counter
     static DISPLAYS: RefCell<(Vec<RECT>, i32)> = const { RefCell::new((Vec::new(), 0)) };
 }
@@ -229,7 +231,10 @@ fn start_routine(
             match msg.wParam.0 {
                 x if x == RequestType::Exit as usize => break,
                 x if x == RequestType::Release as usize => {
-                    ACTIVE_CLIENT.take();
+                    if ACTIVE_CLIENT.take().is_some() {
+                        REENTRY_GUARD
+                            .with_borrow_mut(|guard| guard.block_for(REMOTE_RELEASE_REENTRY_GUARD));
+                    }
                 }
                 x if x == RequestType::ClientUpdate as usize => {
                     let requests = {
@@ -274,6 +279,10 @@ fn check_client_activation(wparam: WPARAM, lparam: LPARAM) -> bool {
         return ret;
     }
 
+    if REENTRY_GUARD.with_borrow_mut(|guard| guard.blocks()) {
+        return ret;
+    }
+
     /* check if a client was activated */
     let entered = DISPLAYS.with_borrow_mut(|(displays, generation)| {
         update_display_regions(displays, generation);
@@ -296,10 +305,28 @@ fn check_client_activation(wparam: WPARAM, lparam: LPARAM) -> bool {
     });
     ENTRY_POINT.replace(entry_point);
 
-    /* notify main thread */
+    /*
+     * A low-level Windows hook must never wait on the async capture task.
+     * Waiting here stalls the operating system's input hook when a peer is
+     * reconnecting or the event queue is saturated, which presents as a local
+     * mouse freeze. If the queue is full, leave the pointer under Windows'
+     * control and let the next deliberate barrier crossing retry activation.
+     */
     log::debug!("ENTERED @ {prev_pos:?} -> {curr_pos:?}");
     let active = ACTIVE_CLIENT.get().expect("active client");
-    blocking_send_event(active, CaptureEvent::Begin);
+    if let Err(error) = try_send_event(active, CaptureEvent::Begin) {
+        ACTIVE_CLIENT.take();
+        match error {
+            TrySendError::Full(_) => {
+                log::warn!(
+                    "capture queue is full; keeping local input active instead of blocking Windows"
+                );
+            }
+            TrySendError::Closed(_) => {
+                log::warn!("capture queue is closed; keeping local input active");
+            }
+        }
+    }
 
     ret
 }
