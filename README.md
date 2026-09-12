@@ -71,6 +71,19 @@ Windows capture path and runs the input-capture unit test before publishing
 the artifacts. The workflow is intended for testing the stable input path;
 clipboard and file transfer are not part of this core build.
 
+### Stable graphical packages
+
+The same workflow also has a `Windows x64 graphical app` job. It produces
+`Lan-Mouse-Stable-Windows-x64.zip`: extract the archive and run
+`Lan Mouse Stable.exe`. The archive includes the GTK runtime required by the
+application.
+
+On macOS, the graphical build is packaged as `Lan Mouse Stable.app`. The
+window handles device pairing, screen position, incoming-device authorization,
+connection notices, and input capture/emulation status. This stable build keeps
+cross-device clipboard synchronization off so image or large-content copies do
+not enter the input path.
+
 ### Android & IOS
 
 A proof of concept for an Android / IOS Application by [rohitsangwan01](https://github.com/rohitsangwan01) can be found [here](https://github.com/rohitsangwan01/lan-mouse-mobile).

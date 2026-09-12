@@ -78,6 +78,8 @@ fn gtk_main() -> glib::ExitCode {
         configure_macos_bundle_environment();
         install_macos_gtk_log_filter();
     }
+    #[cfg(windows)]
+    configure_windows_portable_environment();
 
     gio::resources_register_include!("lan-mouse.gresource").expect("Failed to register resources.");
 
@@ -153,6 +155,32 @@ fn configure_macos_bundle_environment() {
         "GTK_DATA_PREFIX",
         contents.join("Resources").to_string_lossy().as_ref(),
     );
+}
+
+/// Point a portable Windows package at the GTK data placed next to its executable.
+///
+/// The Windows release archive contains the GTK DLLs and `share` directory in the
+/// same folder as the executable. Setting these paths here means a user can unpack
+/// and start the application without separately installing GTK or Libadwaita.
+#[cfg(windows)]
+fn configure_windows_portable_environment() {
+    let Ok(exe) = env::current_exe() else {
+        return;
+    };
+    let Some(package_dir) = exe.parent() else {
+        return;
+    };
+    let share = package_dir.join("share");
+    if !share.exists() {
+        return;
+    }
+
+    let schemas = share.join("glib-2.0").join("schemas");
+    if schemas.exists() {
+        env::set_var("GSETTINGS_SCHEMA_DIR", schemas);
+    }
+    env::set_var("XDG_DATA_DIRS", &share);
+    env::set_var("GTK_DATA_PREFIX", package_dir.to_string_lossy().as_ref());
 }
 
 fn load_css() {

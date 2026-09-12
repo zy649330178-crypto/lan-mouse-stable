@@ -42,3 +42,42 @@ jobs:
         with:
           name: lan-mouse-stable-windows-x64
           path: target/release/lan-mouse.exe
+
+  build-windows-app:
+    name: Windows x64 graphical app
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          path-type: inherit
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-gtk4
+            mingw-w64-ucrt-x86_64-libadwaita
+            mingw-w64-ucrt-x86_64-pkgconf
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-gnu
+      - name: Build graphical app
+        shell: msys2 {0}
+        env:
+          PKG_CONFIG_PATH: /ucrt64/lib/pkgconfig
+        run: cargo build --release --target x86_64-pc-windows-gnu
+      - name: Assemble portable package
+        shell: pwsh
+        run: |
+          $package = 'dist/Lan-Mouse-Stable-Windows-x64'
+          New-Item -ItemType Directory -Force -Path $package | Out-Null
+          Copy-Item 'target/x86_64-pc-windows-gnu/release/lan-mouse.exe' "$package/Lan Mouse Stable.exe"
+          Copy-Item 'C:/msys64/ucrt64/bin/*.dll' $package
+          Copy-Item 'C:/msys64/ucrt64/share' "$package/share" -Recurse
+          Copy-Item 'README.md' "$package/README.md"
+          Compress-Archive -Path "$package/*" -DestinationPath 'dist/Lan-Mouse-Stable-Windows-x64.zip'
+      - name: Upload Windows graphical app
+        uses: actions/upload-artifact@v4
+        with:
+          name: lan-mouse-stable-windows-x64-graphical
+          path: dist/Lan-Mouse-Stable-Windows-x64.zip
