@@ -88,6 +88,25 @@ fix_references() {
 
 fix_references "$exec_path"
 
+# libwebp 1.6 separates its colour-conversion code into libsharpyuv. The
+# dependency is recorded as @rpath, so it is not discovered by the Homebrew
+# path scan in fix_references above. Bundle it explicitly and let the regular
+# recursive fixer process anything it depends on.
+for sharpyuv_path in "$homebrew_path"/opt/webp/lib/libsharpyuv*.dylib; do
+  if [ ! -f "$sharpyuv_path" ]; then
+    continue
+  fi
+  sharpyuv_name="$(basename "$sharpyuv_path")"
+  sharpyuv_dest="$fwks_path/$sharpyuv_name"
+  if [ ! -e "$sharpyuv_dest" ]; then
+    echo "Copying $sharpyuv_path -> $sharpyuv_dest"
+    cp -f "$sharpyuv_path" "$sharpyuv_dest"
+    chmod 644 "$sharpyuv_dest"
+    install_name_tool -id "@rpath/$sharpyuv_name" "$sharpyuv_dest"
+    fix_references "$sharpyuv_dest"
+  fi
+done
+
 copy_runtime_data() {
   mkdir -p "$share_path"
 
