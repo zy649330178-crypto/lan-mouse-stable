@@ -63,6 +63,14 @@ Most current desktop environments and operating systems are fully supported, thi
 
 For more detailed information about os support see [Detailed OS Support](#detailed-os-support)
 
+### Stable-core build artifacts
+
+The `custom/stable-input-v0` branch includes a GitHub Actions workflow that
+builds the no-GTK core for macOS ARM64 and Windows x64. It also checks the
+Windows capture path and runs the input-capture unit test before publishing
+the artifacts. The workflow is intended for testing the stable input path;
+clipboard and file transfer are not part of this core build.
+
 ### Android & IOS
 
 A proof of concept for an Android / IOS Application by [rohitsangwan01](https://github.com/rohitsangwan01) can be found [here](https://github.com/rohitsangwan01/lan-mouse-mobile).

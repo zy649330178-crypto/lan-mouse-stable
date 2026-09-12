@@ -1,0 +1,44 @@
+name: Stable Core Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - custom/stable-input-v0
+
+jobs:
+  build-macos-core:
+    name: macOS ARM64 core
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select stable Rust
+        run: rustup default stable
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+      - name: Test input capture
+        run: cargo test -p input-capture --no-default-features
+      - name: Build core
+        run: cargo build --release --no-default-features
+      - name: Upload macOS core
+        uses: actions/upload-artifact@v4
+        with:
+          name: lan-mouse-stable-macos-arm64
+          path: target/release/lan-mouse
+
+  build-windows-core:
+    name: Windows x64 core
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select stable Rust
+        run: rustup default stable
+      - name: Check Windows capture code
+        run: cargo check -p input-capture --no-default-features
+      - name: Build core
+        run: cargo build --release --no-default-features
+      - name: Upload Windows core
+        uses: actions/upload-artifact@v4
+        with:
+          name: lan-mouse-stable-windows-x64
+          path: target/release/lan-mouse.exe
