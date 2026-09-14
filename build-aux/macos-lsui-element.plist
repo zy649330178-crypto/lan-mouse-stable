@@ -3,6 +3,6 @@
   <key>NSAppSleepDisabled</key>
   <true/>
   <key>NSInputMonitoringUsageDescription</key>
-  <string>Lan Mouse needs Input Monitoring access to capture keyboard and mouse input and forward it to remote machines on your network.</string>
+  <string>阳阳的远控需要“输入监控”权限，才能捕获鼠标和键盘输入并发送到局域网内的其他电脑。</string>
   <key>NSAppleEventsUsageDescription</key>
-  <string>Lan Mouse uses Apple Events to deliver synthesized keyboard and mouse events to the system.</string>
+  <string>阳阳的远控使用辅助功能权限向系统发送模拟的鼠标和键盘事件。</string>

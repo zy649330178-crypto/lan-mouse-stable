@@ -53,9 +53,9 @@ pub fn setup(app: &adw::Application, window: &Window) {
 
             let delegate = new_delegate();
             let menu = menu(&[
-                menu_item(c"打开 Lan Mouse", c"showLanMouse:"),
+                menu_item(c"打开 阳阳的远控", c"showLanMouse:"),
                 separator_item(),
-                menu_item(c"退出 Lan Mouse", c"quitLanMouse:"),
+                menu_item(c"退出 阳阳的远控", c"quitLanMouse:"),
             ]);
 
             let status_bar = msg_send_id(class(c"NSStatusBar"), sel(c"systemStatusBar"));
@@ -71,7 +71,7 @@ pub fn setup(app: &adw::Application, window: &Window) {
             let button = msg_send_id(status_item, sel(c"button"));
             assert!(!button.is_null(), "NSStatusItem.button was null");
             set_button_image(button);
-            msg_send_void_id(button, sel(c"setToolTip:"), nsstring(c"Lan Mouse 稳定版"));
+            msg_send_void_id(button, sel(c"setToolTip:"), nsstring(c"阳阳的远控"));
             msg_send_void_id(status_item, sel(c"setMenu:"), menu);
 
             for item in menu_items(menu) {

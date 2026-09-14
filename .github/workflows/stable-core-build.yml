@@ -44,7 +44,7 @@ jobs:
           path: target/release/lan-mouse.exe
 
   build-windows-app:
-    name: Windows x64 graphical app
+    name: Windows x64 中文图形版
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
@@ -69,15 +69,15 @@ jobs:
       - name: Assemble portable package
         shell: pwsh
         run: |
-          $package = 'dist/Lan-Mouse-Stable-Windows-x64'
+          $package = 'dist/yangyang-remote-control-windows-x64'
           New-Item -ItemType Directory -Force -Path $package | Out-Null
-          Copy-Item 'target/x86_64-pc-windows-gnu/release/lan-mouse.exe' "$package/Lan Mouse Stable.exe"
+          Copy-Item 'target/x86_64-pc-windows-gnu/release/lan-mouse.exe' "$package/阳阳的远控.exe"
           Copy-Item 'C:/msys64/ucrt64/bin/*.dll' $package
           Copy-Item 'C:/msys64/ucrt64/share' "$package/share" -Recurse
           Copy-Item 'README.md' "$package/README.md"
-          Compress-Archive -Path "$package/*" -DestinationPath 'dist/Lan-Mouse-Stable-Windows-x64.zip'
+          Compress-Archive -Path "$package/*" -DestinationPath 'dist/yangyang-remote-control-windows-x64.zip'
       - name: Upload Windows graphical app
         uses: actions/upload-artifact@v4
         with:
-          name: lan-mouse-stable-windows-x64-graphical
-          path: dist/Lan-Mouse-Stable-Windows-x64.zip
+          name: yangyang-remote-control-windows-x64
+          path: dist/yangyang-remote-control-windows-x64.zip

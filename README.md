@@ -73,12 +73,12 @@ clipboard and file transfer are not part of this core build.
 
 ### Stable graphical packages
 
-The same workflow also has a `Windows x64 graphical app` job. It produces
-`Lan-Mouse-Stable-Windows-x64.zip`: extract the archive and run
-`Lan Mouse Stable.exe`. The archive includes the GTK runtime required by the
+The same workflow also has a `Windows x64 中文图形版` job. It produces
+`yangyang-remote-control-windows-x64.zip`: extract the archive and run
+`阳阳的远控.exe`. The archive includes the GTK runtime required by the
 application.
 
-On macOS, the graphical build is packaged as `Lan Mouse Stable.app`. The
+On macOS, the graphical build is packaged as `阳阳的远控.app`. The
 window handles device pairing, screen position, incoming-device authorization,
 connection notices, and input capture/emulation status. This stable build keeps
 cross-device clipboard synchronization off so image or large-content copies do
