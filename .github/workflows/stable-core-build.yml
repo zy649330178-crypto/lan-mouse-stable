@@ -69,8 +69,9 @@ jobs:
         shell: pwsh
         run: |
           $package = 'dist/yangyang-remote-control-windows-x64'
-          $msysRoot = Join-Path $env:RUNNER_TEMP 'setup-msys2'
+          $msysRoot = Join-Path (Join-Path $env:RUNNER_TEMP 'setup-msys2') 'msys64'
           New-Item -ItemType Directory -Force -Path $package | Out-Null
+          New-Item -ItemType Directory -Force -Path "$package/lib" | Out-Null
           Copy-Item 'target/release/lan-mouse.exe' "$package/阳阳的远控.exe"
           Copy-Item (Join-Path $msysRoot 'ucrt64/bin/*.dll') $package
           Copy-Item (Join-Path $msysRoot 'ucrt64/share') "$package/share" -Recurse
