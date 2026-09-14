@@ -69,13 +69,14 @@ jobs:
         shell: pwsh
         run: |
           $package = 'dist/yangyang-remote-control-windows-x64'
-          $msysRoot = Join-Path (Join-Path $env:RUNNER_TEMP 'setup-msys2') 'msys64'
+          $msysLauncher = Join-Path (Join-Path $env:RUNNER_TEMP 'setup-msys2') 'msys2.cmd'
+          $ucrtRoot = (& $msysLauncher -c 'cygpath -w /ucrt64').Trim()
           New-Item -ItemType Directory -Force -Path $package | Out-Null
           New-Item -ItemType Directory -Force -Path "$package/lib" | Out-Null
           Copy-Item 'target/release/lan-mouse.exe' "$package/阳阳的远控.exe"
-          Copy-Item (Join-Path $msysRoot 'ucrt64/bin/*.dll') $package
-          Copy-Item (Join-Path $msysRoot 'ucrt64/share') "$package/share" -Recurse
-          Copy-Item (Join-Path $msysRoot 'ucrt64/lib/gdk-pixbuf-2.0') "$package/lib/gdk-pixbuf-2.0" -Recurse
+          Copy-Item (Join-Path $ucrtRoot 'bin/*.dll') $package
+          Copy-Item (Join-Path $ucrtRoot 'share') "$package/share" -Recurse
+          Copy-Item (Join-Path $ucrtRoot 'lib/gdk-pixbuf-2.0') "$package/lib/gdk-pixbuf-2.0" -Recurse
           Copy-Item 'README.md' "$package/README.md"
           Compress-Archive -Path "$package/*" -DestinationPath 'dist/yangyang-remote-control-windows-x64.zip'
       - name: Upload Windows graphical app
